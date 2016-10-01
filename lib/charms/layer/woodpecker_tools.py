@@ -48,11 +48,11 @@ def check_peers(peers):
     except NameError:
         peer_fail = []
     for peer in peers:
-        for port in ports
-            hookenv.log('Checking Peer: {}, Port: {}'.format(peer[0], port), 'INFO')
+        for port in ports:
+            hookenv.log('Checking Peer: {}, Port: {}'.format(peer[1], port), 'INFO')
             peer_check = check_port('peer', peer[1], port)
     if peer_check[1] == 1:
-        peer_fail = peer[1] + peer_fail
+        peer_fail.append(peer[1])
     if peer_fail != []:
         safe_status('peers failed: ' + str(peer_fail))
     else:
