@@ -21,15 +21,16 @@ def _nc_method(send_string):
         result = 'FAILED: {}, output: {}'.format(send_string, msg)
         stderr = 1
     return result, stderr
- 
+
+
 def check_port(label, host, port, send='', receive=''):
-    if receive != '': 
+    if receive != '':
         send_string = 'echo {} | nc {} {}'.format(send, host, port)
         result = _nc_method(send_string)
     else:
         send_string = 'nc {} {}'.format(host, port)
         result = _nc_method(send_string)
-    hookenv.log('nc command: {}, result: {}'.format(send_string, result) 'DEBUG')
+    hookenv.log('nc command: {}, result: {}'.format(send_string, result), 'DEBUG')
     return result[1]
 
 def check_local_hostname():
