@@ -12,6 +12,13 @@ def safe_status(workload, status):
         hookenv.status_set(workload, status)
 
 
+def woodpecker_listen():
+    cfg = hookenv.config()
+    ports = cfg.get('check_ports')
+    for port in ports:
+        open_local_port(port)
+
+
 def open_local_port(port):
     try:
         os.spawnl(os.P_NOWAIT, '/bin/nc -k -l {}'.format(port))
