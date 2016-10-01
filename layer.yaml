@@ -1,2 +1,2 @@
-repo: git@github.com:andrewdmcleod/magpie-layer.git
-includes: ['layer:basic', 'interface:magpie']
+repo: git@github.com:andrewdmcleod/woodpecker-layer.git
+includes: ['layer:basic', 'interface:woodpecker']

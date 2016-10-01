@@ -6,16 +6,31 @@ import re
 from charmhelpers.core import hookenv
 
 
-def ping(input, ping_time, ping_tries):
-    ping_string = "ping -c {} -w {} {} > /dev/null 2>&1"\
-        .format(ping_tries, ping_time, input)
-    hookenv.log('Ping command: {}'.format(ping_string), 'DEBUG')
-    response = os.system(ping_string)
-    if response == 0:
-        return 0
-    else:
-        return 1
+def open_local_port(port):
+    try:
+        os.spawnl(os.P_NOWAIT, '/bin/nc -k -l {}'.format(port))
+    except os.error as msg:
+        hookenv.log('something went wrong with netcat listening: {}'.format(msg))
 
+
+def _nc_method(send_string):
+    try:
+        result = subprocess.check_output(send_string, shell=True)
+        stderr = 0
+    except subprocess.CalledProcessError as msg:
+        result = 'FAILED: {}, output: {}'.format(send_string, msg)
+        stderr = 1
+    return result, stderr
+ 
+def check_port(label, host, port, send='', receive=''):
+    if receive != '': 
+        send_string = 'echo {} | nc {} {}'.format(send, host, port)
+        result = _nc_method(send_string)
+    else:
+        send_string = 'nc {} {}'.format(host, port)
+        result = _nc_method(send_string)
+    hookenv.log('nc command: {}, result: {}'.format(send_string, result) 'DEBUG')
+    return result[1]
 
 def check_local_hostname():
     local_hostname = subprocess.check_output('hostname', shell=True)\

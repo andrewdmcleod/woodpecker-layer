@@ -1,13 +1,29 @@
 # Overview
 
-Magpie is a charm used for testing the networking (ICMP and DNS specifically)
-of a juju provider/substrate. Simply deploy more than one Magpie charm and 
-watch the status messages and debug logs. 
-
-Status messages will show the unit numbers that have issues - if there are 
-no problems, there will not be a verbose status message.
+Woodpecker is a charm used for testing the networking between peers, or 
+to arbitrary host:port combinations, e.g. www.google.com:80.
 
 All actions, strings, queries and actions are logged in the juju logs.
+
+
+# Configuration
+
+By default, port 31337 will be opened on each peer, and connectivity
+validated between each peer on that port with an OK string response.
+This can be modified to another port by providing a comma separated list
+to the check_ports configuration key._ 
+
+Additionally, tcp port and ip combinations can be provided to the check_ip_port_tcp_
+string. A send string and receive string can be defined to provide further
+testing, e.g.:
+
+        juju set config woodpecker \
+        check_ip_port='www.google.com:80:get /:302,ftp.ubuntu.com:21:test:503'
+
+This will cause woodpecker to connect to www.google.com, send "get /", and
+only return true if "302" is in the response. A corresponding reactive state
+will be set, e.g.: `www.google.com_80_get_/_302-check.ok`, or
+`ftp_ubuntu_com_21_test_503-check.failed`
 
 
 # Workload Status
@@ -21,48 +37,14 @@ will be set to blocked.
 
 This layer will set the following states:
 
-* **`magpie-icmp.failed`** ICMP has failed to one or more units in the peer
-relation.
-* **`magpie-dns.failed`** DNS has failed to one or more units in the peer 
-relation.
+* **`something something`** Something.
 
 
 # Usage
 
 ```
-juju deploy magpie -n 2
-juju deploy magpie -n 1 --to lxc:1
+juju deploy woodpecker -n 2
+juju deploy woodpecker -n 1 --to lxc:1
+juju set woodpecker check_ports='80, 22, 21'
+juju set woodpecker check_ip_port_tcp='www.google.com:80, 8.8.8.8:80, www.canonical.com:443'
 ```
-
-This charm also supports the following config values:
-
-```yaml
-  check_local_hostname:
-    default: true
-    description: Check if local hostname is resolvable
-    type: boolean
-  dns_server:
-    default: ''
-    description: DNS Server to use (default: system default)
-    type: string
-  dns_tries:
-    default: 1
-    description: Number of DNS resolution attempts per query
-    type: int
-  dns_time:
-    default: 3
-    description: Timeout in seconds per DNS query try
-    type: int
-  ping_timeout:
-    default: 2
-    description: Timeout in seconds per ICMP request
-    type: int
-  ping_tries:
-    default: 1
-    description: Number of ICMP packets per ping
-    type: int
-```
-
-e.g.
-
-juju set magpie dns_server=8.8.8.8

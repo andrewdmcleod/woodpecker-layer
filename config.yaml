@@ -1,25 +1,13 @@
 options:
-  check_local_hostname:
-    default: true
-    description: Check if local hostname is resolvable
-    type: boolean
-  dns_server:
+  check_ports:
+    default: '31337' 
+    description: Comma separated list of ports to test on peers
+    type: string 
+  check_ip_port_tcp:
     default: ''
-    description: Use unit default DNS server 
+    description: |
+        Comma separated list of label:host:port or label:host:port:send:receive
+        e.g. google:www.google.com:80, ubuntu_ftp:ftp.ubuntu.com:21
+        e.g. google_http:www.google.com:80:get /:302
+        e.g. ubuntu_ftp:ftp.ubuntu.com:21:test:503 
     type: string
-  dns_tries:
-    default: 1
-    description: Number of DNS resolution attempts per query
-    type: int
-  dns_time:
-    default: 3
-    description: Timeout in seconds per DNS query try
-    type: int
-  ping_timeout:
-    default: 2
-    description: Timeout in seconds per ICMP request
-    type: int
-  ping_tries:
-    default: 1
-    description: Number of ICMP packets per ping
-    type: int

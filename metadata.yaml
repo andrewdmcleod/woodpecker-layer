@@ -1,14 +1,15 @@
-name: magpie
-summary: Magpie layer to test networking - ICMP and DNS
+name: woodpecker
+summary: Woodpecker layer - check remote network ports and test firewall rules
 maintainer: Andrew McLeod <andrew.mcleod@canonical.com>
 description: |
-        Magpie will check ICMP and DNS between itself and any
-        peer units deployed - deploy more than one magpie unit
-        for meaningful results.
-tags: ["testing", "CI"]
+        Woodpecker will, by default, open port 31337 locally, and if it finds
+        any peers, will check that port 31337 is accessible on those. The default
+        port can be changed via configuration to multiple ports.
+        Woodpecker will also test 'IP:PORT' combinations specified by config.
+tags: ["testing", "CI", "networking"]
 peers:
-  magpie:
-    interface: magpie
+  woodpecker:
+    interface: woodpecker 
 series:
   - xenial
   - trusty
