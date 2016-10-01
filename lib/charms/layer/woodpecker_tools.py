@@ -6,10 +6,10 @@ import re
 from charmhelpers.core import hookenv
 
 
-def safe_status(status):
+def safe_status(workload, status):
     cfg = hookenv.config()
     if not cfg.get('supress_status'):
-        hookenv.status_set(status)
+        hookenv.status_set(workload, status)
 
 
 def open_local_port(port):
