@@ -2,7 +2,7 @@
 from charms.reactive import when, when_not, set_state, remove_state
 from charms.reactive.bus import get_states
 from charmhelpers.core import hookenv
-from charms.layer.woodpecker_tools import check_peers, check_remote_hosts, safe_status
+from charms.layer.woodpecker_tools import check_peers, check_remote_hosts, safe_status, woodpecker_listen
 
 
 config = hookenv.config()
@@ -22,6 +22,11 @@ def _set_states(check_result):
     else:
         remove_state('woodpecker-dns.failed')
 
+
+@when_not('woodpecker.listening')
+def open_woodpecker_port():
+    woodpecker_listen()
+    set_state('woodpecker.listening')
 
 @when_not('woodpecker.joined', 'check_hosts')
 def no_peers():
