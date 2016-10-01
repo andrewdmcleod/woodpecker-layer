@@ -3,7 +3,7 @@ options:
     default: '31337' 
     description: Comma separated list of ports to test on peers
     type: string 
-  check_ip_port_tcp:
+  check_list:
     default: ''
     description: |
         Comma separated list of label:host:port or label:host:port:send:receive

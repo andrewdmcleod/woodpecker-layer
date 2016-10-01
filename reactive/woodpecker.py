@@ -1,12 +1,12 @@
 # pylint: disable=unused-argument
-from charms.reactive import when, when_not, set_state, remove_state, 
+from charms.reactive import when, when_not, set_state, remove_state
 from charms.reactive.bus import get_states
 from charmhelpers.core import hookenv
-from charms.layer.woodpecker_tools import check_peers, check_hosts
+from charms.layer.woodpecker_tools import check_peers, check_remote_hosts, safe_status
 
 
 config = hookenv.config()
-check_hosts = config.get('check_ip_port_tcp')
+check_hosts = config.get('check_list')
 if check_hosts:
         set_state('check_hosts')
 else:
@@ -25,7 +25,7 @@ def _set_states(check_result):
 
 @when_not('woodpecker.joined', 'check_hosts')
 def no_peers():
-    hookenv.status_set('waiting', 'Waiting for peers...')
+    safe_status('waiting', 'No TCP checks configured, Waiting for peers...')
 
 
 @when('woodpecker.joined')
@@ -39,11 +39,14 @@ def check_peers_joined(woodpecker):
     _set_states(check_peers(nodes))
 
 @when('check_hosts')
-def check_tcp_remote(woodpecker):
-    check_results = check_hosts()
+def check_hosts(woodpecker):
+    check_results = check_remote_hosts()
     active_states = get_states()
     for result in check_results:
         result_string = result.split(":")
         result_label = result_string[0]
+        for state in active_states:
+            if state not in check_results:
+                remove_state(state)
         set_state(result)
 

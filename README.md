@@ -13,7 +13,7 @@ validated between each peer on that port with an OK string response.
 This can be modified to another port by providing a comma separated list
 to the check_ports configuration key._ 
 
-Additionally, tcp port and ip combinations can be provided to the check_ip_port_tcp_
+Additionally, tcp port and ip combinations can be provided to the check_list
 string. A send string and receive string can be defined to provide further
 testing, e.g.:
 
@@ -46,5 +46,5 @@ This layer will set the following states:
 juju deploy woodpecker -n 2
 juju deploy woodpecker -n 1 --to lxc:1
 juju set woodpecker check_ports='80, 22, 21'
-juju set woodpecker check_ip_port_tcp='www.google.com:80, 8.8.8.8:80, www.canonical.com:443'
+juju set woodpecker check_list='www.google.com:80, 8.8.8.8:80, www.canonical.com:443'
 ```
