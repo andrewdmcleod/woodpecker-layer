@@ -40,13 +40,17 @@ def check_port(label, host, port, send='', receive=''):
     return result
 
 
-def check_peers(peers, port):
+def check_peers(peers):
+    cfg = hookenv.config()
+    ports = cfg.get('check_ports')
     try:
         peer_fail
     except NameError:
         peer_fail = []
     for peer in peers:
-        peer_check = check_port('peer', peer[0], port)
+        for port in ports
+            hookenv.log('Checking Peer: {}, Port: {}'.format(peer[0], port), 'INFO')
+            peer_check = check_port('peer', peer[1], port)
     if peer_check[1] == 1:
         peer_fail = peer[1] + peer_fail
     if peer_fail != []:
