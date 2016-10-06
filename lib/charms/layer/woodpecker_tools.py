@@ -2,6 +2,7 @@
 
 import shlex
 import subprocess
+from charms.reactive import set_state, remove_state
 from charmhelpers.core import hookenv
 
 
@@ -9,6 +10,35 @@ def safe_status(workload, status):
     cfg = hookenv.config()
     if not cfg.get('supress_status'):
         hookenv.status_set(workload, status)
+
+
+def _set_states(peers=None, hosts=None):
+    hookenv.log('_set_states PEERS: {}'.format(peers))
+    hookenv.log('_set_states HOSTS: {}'.format(hosts))
+    current_status = hookenv.status_get()
+    peer_status = current_status[1].split(',')[0]
+    hostcheck_status = current_status[1].split(',')[1]
+    if peers is None:
+        peer_status = 'waiting for peers'
+    elif peers != []:
+        set_state('woodpecker-peer.failed')
+        peer_status = 'peer check failed: ' + str(peers)
+    else:
+        remove_state('woodpecker-peer.failed')
+        peer_status = 'all peer checks ok'
+    if hosts is None:
+        hostcheck_status = ', no host checks defined'
+    elif hosts != []:
+        set_state('woodpecker-hosts.failed')
+        hostcheck_status = ', host check failed: ' + str(hosts)
+    else:
+        remove_state('woodpecker-hosts.failed')
+        hostcheck_status = ', all host checks ok'
+    if 'failed' in peer_status or 'failed' in hostcheck_status:
+        workload = 'blocked'
+    else:
+        workload = 'active'
+    safe_status(workload, peer_status + hostcheck_status)
 
 
 def woodpecker_listen():
@@ -43,7 +73,7 @@ def check_port(label, host, port, send='', receive=''):
     if receive != '':
         send_string = 'echo {} | nc {} {}'.format(send, host, port)
         hookenv.log('Port check, label: {}, host: {}, port: {}, send: {}, receive: {}'.format(label, host, port, send, receive))
-        result = _nc_method(send_string) + receive
+        result = _nc_method(send_string) + tuple(receive)
     else:
         send_string = 'nc {} {}'.format(host, port)
         hookenv.log('Port check, label: {}, host: {}, port: {}'.format(label, host, port))
@@ -83,7 +113,7 @@ def check_remote_hosts():
     if remote_checks != '':
         for check in remote_checks:
             check_list = check.split(':')
-            result = check_port(check_list[0], check_list[1], check_list[2])
+            result = check_port(check_list[0], check_list[1], check_list[2], check_list[3], check_list[4])
             hookenv.log('RESULT: {}'.format(result))
             if len(check_list) == 3:
                 # Send is not defined
