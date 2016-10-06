@@ -18,12 +18,18 @@ string. A send string and receive string can be defined to provide further
 testing, e.g.:
 
         juju set config woodpecker \
-        check_ip_port='www.google.com:80:get /:302,ftp.ubuntu.com:21:test:503'
+        check_list='google:www.google.com:80:get /:302,ubuntu_ftp:ftp.ubuntu.com:21:test:503'
 
 This will cause woodpecker to connect to www.google.com, send "get /", and
-only return true if "302" is in the response. A corresponding reactive state
-will be set, e.g.: `www.google.com_80_get_/_302-check.ok`, or
-`ftp_ubuntu_com_21_test_503-check.failed`
+only return true if "302" is in the response. 
+
+check_list access the following check formats:
+
+* **`label:host:port`** Will just check that the port is open
+* **`label:host:port:send:receive`** Will send 'send' and set OK only if 'receive' is found
+in the response string.
+
+All labels must be unique.
 
 
 # Workload Status

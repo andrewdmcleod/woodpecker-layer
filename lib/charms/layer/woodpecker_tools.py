@@ -120,8 +120,11 @@ def check_remote_hosts():
             if len(check_list) < 5:
                 # Send is not defined
                 if len(check_list) != 3:
-                    hookenv.log('Your check, {}, is not formatted correctly: \
-                                label:host:port:send_string:receive_string'.format(check))
+                    hookenv.log('Your check, {}, is not formatted correctly: '
+                                'label:host:port or label:host:port'
+                                ':send_string:receive_string'.format(check))
+                    if check_list[0] not in hosts_failed:
+                        hosts_failed.append(check_list[0])
                     continue
                 result = check_port(*check_list)
                 hookenv.log('RESULT: {}'.format(result))
