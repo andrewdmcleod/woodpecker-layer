@@ -44,7 +44,7 @@ def woodpecker_listen():
     cfg = hookenv.config()
     ports = cfg.get('check_ports').split(',')
     for port in ports:
-        hookenv.log('Opening local port: {}'.format(port))
+        hookenv.log('Opening local port: {}'.format(port), 'INFO')
         open_local_port(port)
 
 
@@ -52,9 +52,11 @@ def open_local_port(port):
     try:
         exec_string = "/bin/nc -k -l {}".format(port)
         exec_string = shlex.split(exec_string)
-        subprocess.Popen(exec_string, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        subprocess.Popen(exec_string, stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as msg:
-        hookenv.log('Something went wrong with netcat listening: {}'.format(msg))
+        hookenv.log('Something went wrong with netcat listening: '
+                    '{}'.format(msg), 'ERROR')
 
 
 def _nc_method(send_string):
@@ -73,13 +75,19 @@ def check_port(label, host, port, *args):
         receive = args[1]
         if receive != '':
             send_string = 'echo {} | nc -w 3 {} {}'.format(send, host, port)
-            hookenv.log('Port check, label: {}, host: {}, port: {}, send: {}, receive: {}'.format(label, host, port, send, receive))
+            hookenv.log('Port check, label: {}, host: {}, '
+                        'port: {}, send: {}, receive: '
+                        '{}'.format(label, host, port,
+                                    send, receive), 'DEBUG')
             result = str(_nc_method(send_string))
     else:
         send_string = 'nc -z -w 3 {} {}'.format(host, port)
-        hookenv.log('Port check, timeout: 5 seconds, label: {}, host: {}, port: {}'.format(label, host, port))
+        hookenv.log('Port check, timeout: 5 seconds, '
+                    'label: {}, host: {}, '
+                    'port: {}'.format(label, host, port), 'DEBUG')
         result = _nc_method(send_string)
-    hookenv.log('nc command: {}, result: {}'.format(send_string, result), 'DEBUG')
+    hookenv.log('nc command: {}, '
+                'result: {}'.format(send_string, result), 'DEBUG')
     return result
 
 
@@ -92,7 +100,8 @@ def check_peers(peers):
         peer_fail = []
     for peer in peers:
         for port in ports:
-            hookenv.log('Checking Peer: {}, {}, Port: {}'.format(peer[0], peer[1], port), 'INFO')
+            hookenv.log('Checking Peer: {}, {}, '
+                        'port: {}'.format(peer[0], peer[1], port), 'INFO')
             peer_check = check_port('peer', peer[1], port)
         if peer_check[1] == 1:
             if peer[0].split('/')[1] not in peer_fail:
@@ -110,7 +119,7 @@ def check_remote_hosts():
         hosts_failed = []
     cfg = hookenv.config()
     remote_checks = cfg.get('check_list').split(',')
-    hookenv.log('Remote checks list: {}'.format(remote_checks))
+    hookenv.log('Remote checks list: {}'.format(remote_checks), 'INFO')
     if remote_checks != '':
         for check in remote_checks:
             check_list = check.split(':')
@@ -119,12 +128,13 @@ def check_remote_hosts():
                 if len(check_list) != 3:
                     hookenv.log('Your check, {}, is not formatted correctly: '
                                 'label:host:port or label:host:port'
-                                ':send_string:receive_string'.format(check))
+                                ':send_string:receive_string'.format(check),
+                                'WARN')
                     if check_list[0] not in hosts_failed:
                         hosts_failed.append(check_list[0])
                     continue
                 result = check_port(*check_list)
-                hookenv.log('Remote check result: {}'.format(result))
+                hookenv.log('Remote check result: {}'.format(result), 'DEBUG')
                 if result[1] == 0:
                     if check_list[0] in hosts_failed:
                         hosts_failed.remove(check_list[0])
@@ -133,14 +143,13 @@ def check_remote_hosts():
                         hosts_failed.append(check_list[0])
             elif len(check_list) == 5:
                 result = check_port(*check_list)
-                hookenv.log('Remote check result: {}'.format(result))
+                hookenv.log('Remote check result: {}'.format(result), 'DEBUG')
                 if check.split(':')[4] in str(result):
                     if check.split(':')[0] in hosts_failed:
                         hosts_failed.remove(check.split(':')[0])
                 else:
                     if check.split(':')[0] not in hosts_failed:
                         hosts_failed.append(check.split(':')[0])
-            hookenv.log('Sleeping for 1 second between checks...')
+            hookenv.log('Sleeping for 1 second between checks...', 'INFO')
             time.sleep(1)
     return hosts_failed
-
