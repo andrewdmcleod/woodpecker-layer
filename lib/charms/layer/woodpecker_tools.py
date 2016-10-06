@@ -70,6 +70,7 @@ def _nc_method(send_string):
 
 
 def check_port(label, host, port, *args):
+    hookenv.log('parameters: {}'.format(label, host, port, args)
     send = args[0]
     receive = args[1]
     if receive != '':
@@ -115,13 +116,14 @@ def check_remote_hosts():
     if remote_checks != '':
         for check in remote_checks:
             check_list = check.split(':')
-            result = check_port(*check_list)
-            hookenv.log('RESULT: {}'.format(result))
             if len(check_list) < 5:
                 # Send is not defined
                 if len(check_list) != 3:
                     hookenv.log('Your check, {}, is not formatted correctly: \
-                                label:host:port:send_string:recieve_string'.format(check))
+                                label:host:port:send_string:receive_string'.format(check))
+                    continue
+                result = check_port(*check_list)
+                hookenv.log('RESULT: {}'.format(result))
                 if result[1] == 0:
                     if check_list[0] in hosts_failed:
                         hosts_failed.remove(check_list[0])
@@ -130,6 +132,8 @@ def check_remote_hosts():
                         hosts_failed.append(check_list[0])
             elif len(check_list) == 5:
                 hookenv.log('if check.split ({}) in test for test in result: '.format(check.split(':')[4]))
+                result = check_port(*check_list)
+                hookenv.log('RESULT: {}'.format(result))
                 if check.split(':')[4] in str(result):
                     if check.split(':')[0] in hosts_failed:
                         hosts_failed.remove(check.split(':')[0])
