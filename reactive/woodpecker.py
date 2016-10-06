@@ -6,6 +6,12 @@ from charms.layer.woodpecker_tools import (check_peers, check_remote_hosts,
                                            _set_states)
 
 
+@when_not('woodpecker.configured')
+def configure_initial():
+    safe_status('active', 'waiting for peers, no host checks defined')
+    set_state('woodpecker.configured')
+
+
 config = hookenv.config()
 check_hosts = config.get('check_list')
 if check_hosts:

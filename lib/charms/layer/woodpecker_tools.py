@@ -69,7 +69,9 @@ def _nc_method(send_string):
 
 
 
-def check_port(label, host, port, send, receive):
+def check_port(label, host, port, *args):
+    send = args[0]
+    receive = args[1]
     if receive != '':
         send_string = 'echo {} | nc {} {}'.format(send, host, port)
         hookenv.log('Port check, label: {}, host: {}, port: {}, send: {}, receive: {}'.format(label, host, port, send, receive))
