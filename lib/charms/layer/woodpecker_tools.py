@@ -6,12 +6,6 @@ from charms.reactive import set_state, remove_state
 from charmhelpers.core import hookenv
 
 
-def safe_status(workload, status):
-    cfg = hookenv.config()
-    if not cfg.get('supress_status'):
-        hookenv.status_set(workload, status)
-
-
 def _set_states(peers=None, hosts=None):
     hookenv.log('_set_states PEERS: {}'.format(peers))
     hookenv.log('_set_states HOSTS: {}'.format(hosts))
@@ -39,6 +33,12 @@ def _set_states(peers=None, hosts=None):
     else:
         workload = 'active'
     safe_status(workload, peer_status + hostcheck_status)
+
+
+def safe_status(workload, status):
+    cfg = hookenv.config()
+    if not cfg.get('supress_status'):
+        hookenv.status_set(workload, status)
 
 
 def woodpecker_listen():
@@ -69,11 +69,11 @@ def _nc_method(send_string):
 
 
 
-def check_port(label, host, port, send='', receive=''):
+def check_port(label, host, port, send, receive):
     if receive != '':
         send_string = 'echo {} | nc {} {}'.format(send, host, port)
         hookenv.log('Port check, label: {}, host: {}, port: {}, send: {}, receive: {}'.format(label, host, port, send, receive))
-        result = _nc_method(send_string) + tuple(receive)
+        result = str(_nc_method(send_string)) #+ str(receive)
     else:
         send_string = 'nc {} {}'.format(host, port)
         hookenv.log('Port check, label: {}, host: {}, port: {}'.format(label, host, port))
@@ -113,7 +113,7 @@ def check_remote_hosts():
     if remote_checks != '':
         for check in remote_checks:
             check_list = check.split(':')
-            result = check_port(check_list[0], check_list[1], check_list[2], check_list[3], check_list[4])
+            result = check_port(*check_list)
             hookenv.log('RESULT: {}'.format(result))
             if len(check_list) == 3:
                 # Send is not defined
@@ -124,11 +124,12 @@ def check_remote_hosts():
                     if check_list[0] not in hosts_failed:
                         hosts_failed.append(check_list[0])
             elif len(check_list) > 3:
-                # this definitely wont work yet...
-                if check.split(':')[3] in result:
+                hookenv.log('if check.split ({}) in test for test in result: '.format(check.split(':')[4]))
+                if check.split(':')[4] in str(result):
                     if check.split(':')[0] in hosts_failed:
                         hosts_failed.remove(check.split(':')[0])
                 else:
                     if check.split(':')[0] not in hosts_failed:
                         hosts_failed.append(check.split(':')[0])
     return hosts_failed
+
