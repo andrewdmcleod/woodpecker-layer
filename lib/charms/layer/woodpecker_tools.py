@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import time
 import shlex
 import subprocess
 from charms.reactive import set_state, remove_state
@@ -7,8 +8,6 @@ from charmhelpers.core import hookenv
 
 
 def _set_states(peers=None, hosts=None):
-    hookenv.log('_set_states PEERS: {}'.format(peers))
-    hookenv.log('_set_states HOSTS: {}'.format(hosts))
     current_status = hookenv.status_get()
     peer_status = current_status[1].split(',')[0]
     hostcheck_status = current_status[1].split(',')[1]
@@ -55,7 +54,7 @@ def open_local_port(port):
         exec_string = shlex.split(exec_string)
         subprocess.Popen(exec_string, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as msg:
-        hookenv.log('something went wrong with netcat listening: {}'.format(msg))
+        hookenv.log('Something went wrong with netcat listening: {}'.format(msg))
 
 
 def _nc_method(send_string):
@@ -63,24 +62,22 @@ def _nc_method(send_string):
         result = subprocess.check_output(send_string, shell=True)
         stderr = 0
     except subprocess.CalledProcessError as msg:
-        result = 'FAILED: {}, output: {}'.format(send_string, msg)
+        result = 'nc connect failed: {}, output: {}'.format(send_string, msg)
         stderr = 1
     return result, stderr
 
 
-
 def check_port(label, host, port, *args):
-    hookenv.log('parameters: {}'.format(label, host, port, args))
     if args:
         send = args[0]
         receive = args[1]
         if receive != '':
-            send_string = 'echo {} | nc {} {}'.format(send, host, port)
+            send_string = 'echo {} | nc -w 3 {} {}'.format(send, host, port)
             hookenv.log('Port check, label: {}, host: {}, port: {}, send: {}, receive: {}'.format(label, host, port, send, receive))
             result = str(_nc_method(send_string))
     else:
-        send_string = 'nc {} {}'.format(host, port)
-        hookenv.log('Port check, label: {}, host: {}, port: {}'.format(label, host, port))
+        send_string = 'nc -z -w 3 {} {}'.format(host, port)
+        hookenv.log('Port check, timeout: 5 seconds, label: {}, host: {}, port: {}'.format(label, host, port))
         result = _nc_method(send_string)
     hookenv.log('nc command: {}, result: {}'.format(send_string, result), 'DEBUG')
     return result
@@ -113,7 +110,7 @@ def check_remote_hosts():
         hosts_failed = []
     cfg = hookenv.config()
     remote_checks = cfg.get('check_list').split(',')
-    hookenv.log('REMOTE CHECKS: {}'.format(remote_checks))
+    hookenv.log('Remote checks list: {}'.format(remote_checks))
     if remote_checks != '':
         for check in remote_checks:
             check_list = check.split(':')
@@ -127,7 +124,7 @@ def check_remote_hosts():
                         hosts_failed.append(check_list[0])
                     continue
                 result = check_port(*check_list)
-                hookenv.log('RESULT: {}'.format(result))
+                hookenv.log('Remote check result: {}'.format(result))
                 if result[1] == 0:
                     if check_list[0] in hosts_failed:
                         hosts_failed.remove(check_list[0])
@@ -135,14 +132,15 @@ def check_remote_hosts():
                     if check_list[0] not in hosts_failed:
                         hosts_failed.append(check_list[0])
             elif len(check_list) == 5:
-                hookenv.log('if check.split ({}) in test for test in result: '.format(check.split(':')[4]))
                 result = check_port(*check_list)
-                hookenv.log('RESULT: {}'.format(result))
+                hookenv.log('Remote check result: {}'.format(result))
                 if check.split(':')[4] in str(result):
                     if check.split(':')[0] in hosts_failed:
                         hosts_failed.remove(check.split(':')[0])
                 else:
                     if check.split(':')[0] not in hosts_failed:
                         hosts_failed.append(check.split(':')[0])
+            hookenv.log('Sleeping for 1 second between checks...')
+            time.sleep(1)
     return hosts_failed
 

@@ -29,7 +29,8 @@ check_list access the following check formats:
 * **`label:host:port:send:receive`** Will send 'send' and set OK only if 'receive' is found
 in the response string.
 
-All labels must be unique.
+All labels must be unique, and all checks must be specified each time the config value is set,
+i.e. labels do not persist if you do not include them in the config value.
 
 
 # Workload Status
