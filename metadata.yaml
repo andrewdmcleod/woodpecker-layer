@@ -2,10 +2,9 @@ name: woodpecker
 summary: Woodpecker layer - check remote network ports and test firewall rules
 maintainer: Andrew McLeod <andrew.mcleod@canonical.com>
 description: |
-        Woodpecker will, by default, open port 31337 locally, and if it finds
-        any peers, will check that port 31337 is accessible on those. The default
-        port can be changed via configuration to multiple ports.
-        Woodpecker will also test 'IP:PORT' combinations specified by config.
+        Woodpecker is a charm for testing networking between peers, and/or 
+        to arbitrary host:port combinations, e.g. www.google.com:80, with or
+        without a 'send' string and a 'receive' string.
 tags: ["testing", "CI", "networking"]
 peers:
   woodpecker:

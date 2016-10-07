@@ -1,8 +1,8 @@
 # Overview
 
-Woodpecker is a charm used for testing networking between peers, and/or 
+Woodpecker is a charm for testing networking between peers, and/or 
 to arbitrary host:port combinations, e.g. www.google.com:80, with or
-without a 'send' string and a 'receive' string..
+without a 'send' string and a 'receive' string.
 
 Status messages will either display an error with a check, or all ok.
 For detailed information see the juju logs.
