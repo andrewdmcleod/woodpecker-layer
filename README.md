@@ -64,5 +64,7 @@ This layer will set the following states:
 juju deploy woodpecker 
 juju add-unit woodpecker -n 1 --to lxc:1
 juju set woodpecker check_ports='31337,1337'
-juju set woodpecker check_list='google_simple:www.google.com:80,google_advanced:www.google.com:80:GET /:302'
+juju set woodpecker check_list='
+google_simple:www.google.com:80,
+google_advanced:www.google.com:80:GET /:302'
 ```

@@ -6,15 +6,15 @@ import amulet
 
 class TestDeploy(unittest.TestCase):
     """
-    Trivial deployment test for Magpie
+    Trivial deployment test for Woodpecker
     """
 
     def test_deploy(self):
         self.d = amulet.Deployment(series='xenial')
-        #self.d.add('magpie', charm='magpie')
-        self.d.add('magpie', charm='~admcleod/magpie')
+        #self.d.add('woodpecker', charm='woodpecker')
+        self.d.add('woodpecker', charm='~admcleod/woodpecker')
         self.d.setup(timeout=900)
-        self.d.sentry.wait_for_messages({'magpie': 'Waiting for peers...'}, timeout=3600)
+        self.d.sentry.wait_for_messages({'woodpecker': 'waiting for peers, no host checks defined'}, timeout=3600)
 
 if __name__ == '__main__':
     unittest.main()

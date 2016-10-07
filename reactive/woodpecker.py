@@ -26,7 +26,7 @@ def no_peers():
     safe_status('waiting', 'waiting for peers, no host checks defined')
 
 
-@when('woodpecker.joined', 'woodpecker.listening')
+@when('woodpecker.joined', 'woodpecker.configured')
 def check_peers_joined(woodpecker):
     '''
     We do not dismiss joined here so that this check reruns
