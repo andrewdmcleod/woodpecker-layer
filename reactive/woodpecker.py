@@ -13,6 +13,9 @@ if check_hosts:
 else:
         remove_state('check_hosts')
 
+if config.changed('check_ports'):
+    woodpecker_listen()
+
 
 @when_not('woodpecker.configured')
 def configure_initial():
