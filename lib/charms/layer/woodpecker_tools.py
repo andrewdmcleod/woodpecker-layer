@@ -9,8 +9,9 @@ from charmhelpers.core import hookenv
 
 def _set_states(peers=None, hosts=None):
     current_status = hookenv.status_get()
-    peer_status = current_status[1].split(',')[0]
-    hostcheck_status = current_status[1].split(',')[1]
+    if len(current_status) == 2:
+        peer_status = current_status[1].split(',')[0]
+        hostcheck_status = current_status[1].split(',')[1]
     if peers is None:
         peer_status = 'waiting for peers'
     elif peers != []:
