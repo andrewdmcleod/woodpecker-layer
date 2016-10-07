@@ -50,6 +50,11 @@ class TestDeploy(unittest.TestCase):
         self.woodpecker_1.run("sudo pkill nc")
         self.d.sentry.wait_for_messages({'woodpecker': re.compile('.*peer check failed.*')})
 
+    def test_teardown(self):
+        """
+        Make sure teardown hooks work cleanly
+        """
+        self.d.destroy_service('woodpecker')
 
 if __name__ == '__main__':
     unittest.main()
