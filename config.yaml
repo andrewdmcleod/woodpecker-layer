@@ -11,3 +11,7 @@ options:
         e.g. google_http:www.google.com:80:get /:302
         e.g. ubuntu_ftp:ftp.ubuntu.com:21:test:503 
     type: string
+  supress_status:
+    default: false
+    description: Supress status output if consuming this layer
+    type: boolean
